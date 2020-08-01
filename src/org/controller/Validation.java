@@ -1,33 +1,39 @@
 package org.controller;
 
+import org.exception.InvalidCodeException;
+import org.exception.NullValueException;
+import org.exception.OutOfRangeNumberException;
+import org.exception.RepetitionException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Validation {
 
     private List<Character> list = new ArrayList<>();
-    public void get(Long nationalCode){
+    public void get(Long nationalCode) throws OutOfRangeNumberException, NullValueException, InvalidCodeException, RepetitionException {
         String nc = String.valueOf(nationalCode);
 
         if (nc.isEmpty()){
-            System.out.println("error");
-        }else if ( (nc.length()==8 && repetitionCode(nc) ) || ( nc.length()==9 && repetitionCode(nc))){
-            /*System.out.println("ok");*/
-            addZero(list);
-        }else if (nc.length() == 10 && repetitionCode(nc)){
-            /*System.out.println("ok");*/
-            validate(list);
+            throw new NullValueException("null pointer Exception");
+        }else if ( nc.length()==8 || nc.length()==9){
+
+            createList(nc);
+        }else if (nc.length() == 10 ){
+            createList(nc);
         }else
-            System.out.println("tedad adad dorost nist");
+            throw new OutOfRangeNumberException("the number that you enter is out of range");
     }
 
 
-
-    public boolean repetitionCode(String nc){
-
+    private void createList(String nc) throws InvalidCodeException, RepetitionException {
         for (int i=0;i<nc.length();i++){
             list.add(nc.charAt(i));
         }
+        repetitionCode(list);
+    }
+
+    private void repetitionCode(List<Character> list) throws RepetitionException, InvalidCodeException {
 
         int count = 0;
         for (Character id : list){
@@ -35,18 +41,18 @@ public class Validation {
                 ++count;
             }
         }
+
         if (count == list.size()){
-            System.out.println("tekrari dadi");
-            return false;
-        }else{
-            return true;
+            throw new RepetitionException("national code have the same number");
+        }else {
+            addZero(list);
         }
 
     }
 
 
 
-    private void addZero(List<Character> list){
+    private void addZero(List<Character> list) throws InvalidCodeException {
 
         if (list.size() == 8){
             list.add(0,'0');
@@ -60,25 +66,25 @@ public class Validation {
 
 
 
-    private void validate(List<Character> list){
+    private void validate(List<Character> list) throws InvalidCodeException {
         int sum = 0;
         int length = 10;
         for (int i=0; i< length -1 ;i++){
             sum += Integer.parseInt(String.valueOf(list.get(i))) * (length - i);
         }
 
-        /*System.out.println(list);*/
+
         int lastDigit = Integer.parseInt(String.valueOf(list.get(9)));
         int num = sum % 11;
 
 
         if (num > 2 &&  (11-num) == lastDigit){
-            System.out.println("ok");
+            System.out.println("national code is valid");
 
         }else if (num <= 2 && lastDigit == num ){
-            System.out.println("ok");
+            System.out.println("national code is valid");
         }else
-            System.err.println("invalid");
+            throw new InvalidCodeException("national code is invalid");
 
 
     }
